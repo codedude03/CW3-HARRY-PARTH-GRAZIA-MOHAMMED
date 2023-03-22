@@ -167,16 +167,7 @@ def recursive_solve(grid, n_rows, n_cols):
         for cell_num, location in enumerate(empty_cells): #iterate empty cells, use enumerate to get cell num
                 list_pos = []
                 for i in range(1,n+1):
-##                        #check for duplicates in row/column/box and store valid values in list
-##                        num_vert = n/n_rows
-##                        num_horz = n/n_cols
-##                        #below line calculates which square index returned from get_squares() to consider, by working out position of box and multiplying number box rows above by number box columns to get index
-##                        square_num = int(int(location[0]/n_rows)*num_horz) + int(location[1]/n_cols)
-##
-##                        #get the squares and identify the square to pass to duplicate checker
-##                        squares = get_squares(grid, n_rows, n_cols)
-##                        square = squares[square_num]
-
+                        #check for duplicates within column/row/box
                         if dup_check(grid, n_rows, n_cols, location, i):
                                 list_pos.append(i) #add possible value to list
                                 
