@@ -137,34 +137,61 @@ def recursive_solve(grid, n_rows, n_cols):
                         return grid
                 return False
 
-        #locate first empty cell
+        #locate empty cells
+        empty_cells = []
         row = 0
         index_found = False
-        while not index_found:
+        for row in range(len(grid)):
                 if 0 in grid[row]:
-                        column = grid[row].index(0)
-                        location = (row, column)
-                        index_found = True
-                row += 1
+                        #column = grid[row].index(0)
+                        for column, cell in enumerate(grid[row]):
+                                if cell == 0:
+                                        location = (row, column)
+                                        empty_cells.append(location)
+        #print(empty_cells)
 
+        empty_cell_possibles = []
+        #print(empty_cell_possibles)
+        for cell_num, location in enumerate(empty_cells):
+                list_pos = []
+                #print(list_pos)
+                i=0
+                for i in range(1,n+1):
+                        #print(i)
+                        # check for duplicates in row/column to avoid redundant tests - without massively increases time
+                        num_vert = n/n_rows
+                        num_horz = n/n_cols
+                        square_num = int(int(location[0]/n_rows)*num_horz) + int(location[1]/n_cols)
 
-        for i in range(1,n+1):
-                # check for duplicates in row/column to avoid redundant tests - without massively increases time
+                        squares = get_squares(grid, n_rows, n_cols)
+                        square = squares[square_num]
 
-                grid_for_get_squares = grid
-                grid_for_get_squares[location[0]][location[1]] = '!'
-                #print(grid_for_get_squares)
-                squares = get_squares(grid_for_get_squares, n_rows, n_cols)
-                for square in squares:
-                    if '!' in square:
-                        break
-                #print(square)
-                if dup_check(grid, n_rows, n_cols, location, i, square):
-                        #update temp_grid with the new value
-                        temp_grid[location[0]][location[1]] = i
-                        attempt = recursive_solve(temp_grid, n_rows, n_cols)
-                        if attempt:
-                                return attempt
+                        if dup_check(grid, n_rows, n_cols, location, i, square):
+                                #print(i)
+                                #update temp_grid with the new value
+                                list_pos.append(i)
+                #print(list_pos)
+                
+##                if list_pos == []:
+##                        return False
+                empty_cell_possibles.append(list_pos)
+        for location in empty_cells:
+                temp_grid[location[0]][location[1]] = 0
+        #print(empty_cells)
+        #print(empty_cell_possibles)
+        #print(empty_cell_possibles)
+        least_possible = min(empty_cell_possibles, key=len)
+        #print(least_possible)
+        location = empty_cells[empty_cell_possibles.index(least_possible)]
+        #print(location)
+        for possible_val in least_possible:
+                #print(possible_val)
+                temp_grid[location[0]][location[1]] = possible_val
+                #print(temp_grid)
+                attempt = recursive_solve(temp_grid, n_rows, n_cols)
+                #print(attempt)
+                if attempt:
+                        return attempt
         temp_grid[location[0]][location[1]] = 0
         return False
 
