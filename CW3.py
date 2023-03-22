@@ -110,25 +110,39 @@ def check_solution(grid, n_rows, n_cols):
 
 def recursive_solve(grid, n_rows, n_cols):
 
-        def dup_check(grid, n_rows, n_cols, location, i, square):
-                #print(get_squares(grid, n_rows, n_cols),location)
+        def dup_check(grid, n_rows, n_cols, location, i):
                 #function to check for duplicate in row column reduce redundant tests
+                
+                #check in row
                 if i in grid[location[0]]:
                         return False
+                
+                #create column list
                 column_list = []
                 for row in grid:
                         column_list.append(row[location[1]])
+                #check in column
                 if i in column_list:
                         return False
 
+                #calculate which square index returned from get_squares() to consider, by working out position of box that contains location and multiplying number box rows above by number box columns to get index
+                num_vert = n/n_rows
+                num_horz = n/n_cols
+                square_num = int(int(location[0]/n_rows)*num_horz) + int(location[1]/n_cols)
+                #get the squares and identify the square to check in
+                squares = get_squares(grid, n_rows, n_cols)
+                square = squares[square_num]
+                #check in square
                 if i in square:
                         return False
-                    
+
+                #return true if no duplicates found
                 return True
         
         #N is the maximum integer considered in this board
         n = n_rows*n_cols
-        
+
+        #temp_grid used to test possibles
         temp_grid = grid
 
         #check if grid full, therefore check if solution found
@@ -137,61 +151,50 @@ def recursive_solve(grid, n_rows, n_cols):
                         return grid
                 return False
 
-        #locate empty cells
+        #locate empty cells and store in array of tuples
         empty_cells = []
         row = 0
         index_found = False
+        #iterate though rows and columns, if the cell is 0 add location tuple to array
         for row in range(len(grid)):
-                if 0 in grid[row]:
-                        #column = grid[row].index(0)
-                        for column, cell in enumerate(grid[row]):
-                                if cell == 0:
-                                        location = (row, column)
-                                        empty_cells.append(location)
-        #print(empty_cells)
-
+                for column, cell in enumerate(grid[row]):
+                        if cell == 0:
+                                location = (row, column)
+                                empty_cells.append(location)
+                                        
         empty_cell_possibles = []
-        #print(empty_cell_possibles)
-        for cell_num, location in enumerate(empty_cells):
+        #this section checks for what values can go in each empty cell based on duplicates in row/column/box
+        for cell_num, location in enumerate(empty_cells): #iterate empty cells, use enumerate to get cell num
                 list_pos = []
-                #print(list_pos)
-                i=0
                 for i in range(1,n+1):
-                        #print(i)
-                        # check for duplicates in row/column to avoid redundant tests - without massively increases time
-                        num_vert = n/n_rows
-                        num_horz = n/n_cols
-                        square_num = int(int(location[0]/n_rows)*num_horz) + int(location[1]/n_cols)
+##                        #check for duplicates in row/column/box and store valid values in list
+##                        num_vert = n/n_rows
+##                        num_horz = n/n_cols
+##                        #below line calculates which square index returned from get_squares() to consider, by working out position of box and multiplying number box rows above by number box columns to get index
+##                        square_num = int(int(location[0]/n_rows)*num_horz) + int(location[1]/n_cols)
+##
+##                        #get the squares and identify the square to pass to duplicate checker
+##                        squares = get_squares(grid, n_rows, n_cols)
+##                        square = squares[square_num]
 
-                        squares = get_squares(grid, n_rows, n_cols)
-                        square = squares[square_num]
-
-                        if dup_check(grid, n_rows, n_cols, location, i, square):
-                                #print(i)
-                                #update temp_grid with the new value
-                                list_pos.append(i)
-                #print(list_pos)
-                
-##                if list_pos == []:
-##                        return False
+                        if dup_check(grid, n_rows, n_cols, location, i):
+                                list_pos.append(i) #add possible value to list
+                                
+                #add list of possible values for cell to list of values for all empty cells
                 empty_cell_possibles.append(list_pos)
-        for location in empty_cells:
-                temp_grid[location[0]][location[1]] = 0
-        #print(empty_cells)
-        #print(empty_cell_possibles)
-        #print(empty_cell_possibles)
+
+        #identify least possible values and location of the cell
         least_possible = min(empty_cell_possibles, key=len)
-        #print(least_possible)
         location = empty_cells[empty_cell_possibles.index(least_possible)]
-        #print(location)
+
+        #for the least value cell, iterate the possibles and recursive solve for each, returning the solution if found
         for possible_val in least_possible:
-                #print(possible_val)
                 temp_grid[location[0]][location[1]] = possible_val
-                #print(temp_grid)
                 attempt = recursive_solve(temp_grid, n_rows, n_cols)
-                #print(attempt)
                 if attempt:
                         return attempt
+
+        #reset temp_grid if solution not found, then return false to test next value in parent recursion
         temp_grid[location[0]][location[1]] = 0
         return False
 
