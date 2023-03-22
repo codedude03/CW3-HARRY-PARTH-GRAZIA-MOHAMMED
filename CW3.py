@@ -41,15 +41,15 @@ grid6 = [
                 [0, 5, 0, 0, 6, 4]]
 
 grid7 = [
-		[6, 1, 9, 8, 4, 2, 5, 3, 7,],
-		[7, 0, 5, 3, 6, 9, 1, 8, 2,],
-		[8, 3, 2, 1, 7, 5, 0, 0, 9,],
-		[1, 5, 8, 6, 9, 7, 3, 2, 4,],
-		[0, 6, 4, 2, 0, 1, 8, 7, 5,],
-		[2, 0, 3, 0, 8, 4, 6, 9, 1,],
-		[4, 0, 7, 9, 5, 6, 2, 0, 3,],
-		[3, 9, 1, 4, 0, 0, 7, 5, 6,],
-		[5, 2, 0, 7, 1, 3, 9, 4, 8,]]
+                [6, 1, 9, 8, 4, 2, 5, 3, 7,],
+                [7, 0, 5, 3, 6, 9, 1, 8, 2,],
+                [8, 3, 2, 1, 7, 5, 0, 0, 9,],
+                [1, 5, 8, 6, 9, 7, 3, 2, 4,],
+                [0, 6, 4, 2, 0, 1, 8, 7, 5,],
+                [2, 0, 3, 0, 8, 4, 6, 9, 1,],
+                [4, 0, 7, 9, 5, 6, 2, 0, 3,],
+                [3, 9, 1, 4, 0, 0, 7, 5, 6,],
+                [5, 2, 0, 7, 1, 3, 9, 4, 8,]]
 
 grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2), (grid6, 2, 3), (grid7, 3, 3)]
 '''
@@ -94,7 +94,7 @@ def check_solution(grid, n_rows, n_cols):
                 if check_section(row, n) == False:
                         return False
 
-        for i in range(n_rows):
+        for i in range(n_rows**2):
                 column = []
                 for row in grid:
                         column.append(row[i])
@@ -110,7 +110,8 @@ def check_solution(grid, n_rows, n_cols):
 
 def recursive_solve(grid, n_rows, n_cols):
 
-        def dup_check(grid, n_rows, n_cols, location, i):
+        def dup_check(grid, n_rows, n_cols, location, i, square):
+                #print(get_squares(grid, n_rows, n_cols),location)
                 #function to check for duplicate in row column reduce redundant tests
                 if i in grid[location[0]]:
                         return False
@@ -119,6 +120,10 @@ def recursive_solve(grid, n_rows, n_cols):
                         column_list.append(row[location[1]])
                 if i in column_list:
                         return False
+
+                if i in square:
+                        return False
+                    
                 return True
         
         #N is the maximum integer considered in this board
@@ -145,7 +150,16 @@ def recursive_solve(grid, n_rows, n_cols):
 
         for i in range(1,n+1):
                 # check for duplicates in row/column to avoid redundant tests - without massively increases time
-                if dup_check(grid, n_rows, n_cols, location, i):
+
+                grid_for_get_squares = grid
+                grid_for_get_squares[location[0]][location[1]] = '!'
+                #print(grid_for_get_squares)
+                squares = get_squares(grid_for_get_squares, n_rows, n_cols)
+                for square in squares:
+                    if '!' in square:
+                        break
+                #print(square)
+                if dup_check(grid, n_rows, n_cols, location, i, square):
                         #update temp_grid with the new value
                         temp_grid[location[0]][location[1]] = i
                         attempt = recursive_solve(temp_grid, n_rows, n_cols)
