@@ -266,11 +266,11 @@ def sort_terminal_arguments(argvars):
             fileIN = argvars[flag_pos+1]
             with open(fileIN, 'r') as f:
                 grid_string = [row.strip('\n') for row in f.readlines()]
-            grid_ints = [[int(digit) for digit in row.split(',')] for row in grid_string]
+            grid_ints = [[int(digit) for digit in row.split(', ')] for row in grid_string]
             if len(grid_ints) == 4:
                 grids = [(grid_ints, 2, 2)]
             if len(grid_ints) == 6:
-                grids = [(grid_ints, 3, 2)]
+                grids = [(grid_ints, 2, 3)]
             if len(grid_ints) == 9:
                 grids = [(grid_ints, 3, 3)]
             fileOUT = argvars[flag_pos+2]
@@ -338,11 +338,11 @@ def main(argvars):
                     output_file.writelines(solution)
                     if generate_explanation:
                         output_file.writelines('\n\nSolution Instructions:')
-                        output_file.writelines(explanation_points)
+                        output_file.writelines(reversed(explanation_points))
                     output_file.close()
                     
                 elif generate_explanation:
-                    print(*explanation_points)
+                    print(*reversed(explanation_points))
                     print("\n\n\n")
             
 
