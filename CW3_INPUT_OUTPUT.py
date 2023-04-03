@@ -3,63 +3,22 @@
 import copy
 import time
 import sys
+import os
+# import random
+# import matplotlib.pyplot as plt
+import CW3_sample_grids as sgd
+
 USAGE_MESSAGE = "Usage: ./CW3_INPUT_OUTPUT.py (-flag). Where -flag is of the\
  formats:\n -explain, -file INPUT_file OUTPUT_file, -hint N, -profile\n\
  or a combination of them all"
  # this tells us how to input the arguments
+ 
+MAX_FLAG_CMMDS = 4
+POSSIBLE_FLAGS = ['-explain', '-file', '-hint', '-profile']
+# should there be a maximum number of flags that can be entered at a time?
 
-#Grids 1-5 are 2x2
-grid1 = [
-                [1, 0, 4, 2],
-                [4, 2, 1, 3],
-                [2, 1, 3, 4],
-                [3, 4, 2, 1]]
+grids = sgd.grids
 
-grid2 = [
-                [1, 0, 4, 2],
-                [4, 2, 1, 3],
-                [2, 1, 0, 4],
-                [3, 4, 2, 1]]
-
-grid3 = [
-                [1, 0, 4, 2],
-                [4, 2, 1, 0],
-                [2, 1, 0, 4],
-                [0, 4, 2, 1]]
-
-grid4 = [
-                [1, 0, 4, 2],
-                [0, 2, 1, 0],
-                [2, 1, 0, 4],
-                [0, 4, 2, 1]]
-
-grid5 = [
-                [1, 0, 0, 2],
-                [0, 0, 1, 0],
-                [0, 1, 0, 4],
-                [0, 0, 0, 1]]
-
-grid6 = [
-                [0, 0, 6, 0, 0, 3],
-                [5, 0, 0, 0, 0, 0],
-                [0, 1, 3, 4, 0, 0],
-                [0, 0, 0, 0, 0, 6],
-                [0, 0, 1, 0, 0, 0],
-                [0, 5, 0, 0, 6, 4]]
-
-grid7 = [
-                [6, 1, 9, 8, 4, 2, 5, 3, 7,],
-                [7, 0, 5, 3, 6, 9, 1, 8, 2,],
-                [8, 3, 2, 1, 7, 5, 0, 0, 9,],
-                [1, 5, 8, 6, 9, 7, 3, 2, 4,],
-                [0, 6, 4, 2, 0, 1, 8, 7, 5,],
-                [2, 0, 3, 0, 8, 4, 6, 9, 1,],
-                [4, 0, 7, 9, 5, 6, 2, 0, 3,],
-                [3, 9, 1, 4, 0, 0, 7, 5, 6,],
-                [5, 2, 0, 7, 1, 3, 9, 4, 8,]]
-
-# global grids - has to be declared global within a local function
-grids = [(grid1, 2, 2), (grid2, 2, 2), (grid3, 2, 2), (grid4, 2, 2), (grid5, 2, 2), (grid6, 2, 3), (grid7, 3, 3)]
 '''
 ===================================
 DO NOT CHANGE CODE ABOVE THIS LINE
@@ -144,7 +103,10 @@ def dup_check(grid, n_rows, n_cols, location, i, n):
 
         #return true if no duplicates found
         return True
+
     
+original_empty_cells = []
+
 def recursive_solve(grid, n_rows, n_cols):
     
         #N is the maximum integer considered in this board
@@ -152,7 +114,6 @@ def recursive_solve(grid, n_rows, n_cols):
 
         #temp_grid used to test possibles
         temp_grid = grid
-        # print(grid, type(grid))
 
         #check if grid full, therefore check if solution found
         #if there are any 0s, the below would return True (not False), meaning there are still empty spaces
@@ -166,13 +127,20 @@ def recursive_solve(grid, n_rows, n_cols):
         row = 0
         index_found = False
         #iterate though rows and columns, if the cell is 0 add location tuple to array
+        
         for row in range(len(grid)):
                 for column, cell in enumerate(grid[row]):
                         if cell == 0:
                                 location = (row, column)
                                 empty_cells.append(location)
-                                        
+        
+        global original_empty_cells
+        # original_empty_cells = empty_cells[:] 
+        
+        if not original_empty_cells:
+            original_empty_cells = copy.deepcopy(empty_cells)
         empty_cell_possibles = []
+        
         #this section checks for what values can go in each empty cell based on duplicates in row/column/box
         for cell_num, location in enumerate(empty_cells): #iterate empty cells, use enumerate to get cell num
                 list_pos = []
@@ -183,33 +151,24 @@ def recursive_solve(grid, n_rows, n_cols):
                                 
                 #add list of possible values for cell to list of values for all empty cells
                 empty_cell_possibles.append(list_pos)
-
+        
         #identify least possible values and location of the cell
         least_possible = min(empty_cell_possibles, key=len)
         location = empty_cells[empty_cell_possibles.index(least_possible)]
-        # print('location:', location)
+        location_readable = tuple(i+1 for i in location)
 
         #for the least value cell, iterate the possibles and recursive solve for each, returning the solution if found
         for possible_val in least_possible:
                 temp_grid[location[0]][location[1]] = possible_val
                 attempt = recursive_solve(temp_grid, n_rows, n_cols)
+                
                 if attempt:
-                    explanation_points.append(f"\nPut {possible_val} in location {location}.")  
-                    # print(f"Put {possible_val} in location {location}.")
+                    explanation_points.append(f"\nPut {possible_val} in location {location_readable}.")  
                     return attempt
 
         #reset temp_grid if solution not found, then return false to test next value in parent recursion
         temp_grid[location[0]][location[1]] = 0
         return False
-
-
-def random_solve(grid, n_rows, n_cols, max_tries=500):
-        
-        for i in range(max_tries):
-                pass
-
-        return grid
-
 
 def solve(grid, n_rows, n_cols):
 
@@ -218,7 +177,6 @@ def solve(grid, n_rows, n_cols):
         Comment out one of the lines below to either use the random or recursive solver
         '''
         
-        #return random_solve(grid, n_rows, n_cols)
         return recursive_solve(grid, n_rows, n_cols)
 
 def sort_terminal_arguments(argvars):
@@ -228,75 +186,156 @@ def sort_terminal_arguments(argvars):
     an action should be carried out on the grid, the performance of the solver 
     should be analysed, or a process should be explained to the user
    
-   	arguments: argvars, a list of termnial command line arguments
-   	returns: 	generate_explanation - boolean variable indicating whether an explanation of the solution's steps should be given
-   				generate_output_file - boolean variable indicating which file to find an unsolved grid from and which file to write the solution to
-   				fileOUT - a string, giving the name of the new file that the solution should be written to (if the "generate_output_file" variable is true)
-                grids -a list of tuples from a file, or from the default global variable, returns the grid to use (and its dimensions)
-                generate_hints - boolean variable indicating that N empty spaces of an unsolved grid should be filled correctly
-                generate_solution_profile - boolean variable indicating that the performance of the soduko solver should be displayed to the user   
+   	arguments: argvars - list of termnial command line arguments
+   	returns: 	get_explain - boolean variable indicating whether an explanation of the solution's steps should be given
+   				get_IO_file - boolean variable indicating which file to find an unsolved grid from and to which file to write the solution
+                grids - list of tuples from a file, or from the default global variable, containing the grid to use (and its dimensions)
+                get_hints - boolean variable indicating that N empty spaces of an unsolved grid should be revealed
+                get_solver_profile - boolean variable indicating that the performance of the soduko solver should be displayed  
+                NUMBER_OF_HINTS - integer value of the number of hints the user wants for a grid
                 
     '''
     
-    MAX_FLAG_CMMDS = 7
-    
     N_flag_args = 0
-    generate_explanation = False
-    generate_output_file = False
-    generate_hints = False
-    generate_solution_profile = False
+    get_explain = False
+    get_IO_file = False
+    get_hints = False
+    get_solver_profile = False
     fileOUT = None
-    global grids
+    NUMBER_OF_HINTS = None
+    grids = []
 
     
     #Look for valid number of arguments
-    if len(argvars) > MAX_FLAG_CMMDS:
-        print('error 1')
+    flags = [flag for flag in argvars if '-' in flag]
+    
+    if len(flags) > MAX_FLAG_CMMDS or len(flags) != len(set(flags)):
+        print("Only these 4 flags can be entered (each up to once) at "\
+              f"any one time. \n\nUSAGE: {USAGE_MESSAGE}")
+        exit()
+    
+    if any(item not in POSSIBLE_FLAGS for item in flags):
+        print(f"An invalid flag was entered.\n\nUSAGE: {USAGE_MESSAGE}")
+        
         exit()
 
     #Look for the explain flag
-    if '-explain' in argvars[0:MAX_FLAG_CMMDS]:
+    if '-explain' in flags:
         N_flag_args += 1
-        generate_explanation = True
+        get_explain = True
 
 	#Look for the file IN/OUT flag statement
-    if '-file' in argvars[0:MAX_FLAG_CMMDS]:
+    if '-file' in flags:
         flag_pos = argvars.index('-file')
+        
+        # check first to see if 2 potetntial valid files have been entered
         if len(argvars[flag_pos:]) >= 3:
-            fileIN = argvars[flag_pos+1]
+            FILES = argvars[flag_pos+1:flag_pos+3]
+            fileIN = FILES[0]
+            
+            # check to see if the input file location exists
+            if not os.path.exists(fileIN):
+                print("The INPUT file entered does not exist."\
+                      f"\n\n{USAGE_MESSAGE}")
+                    
+                exit()
+            
+            # reads each line of the 
             with open(fileIN, 'r') as f:
                 grid_string = [row.strip('\n') for row in f.readlines()]
-            grid_ints = [[int(digit) for digit in row.split(', ')] for row in grid_string]
-            if len(grid_ints) == 4:
-                grids = [(grid_ints, 2, 2)]
-            if len(grid_ints) == 6:
-                grids = [(grid_ints, 2, 3)]
-            if len(grid_ints) == 9:
-                grids = [(grid_ints, 3, 3)]
-            fileOUT = argvars[flag_pos+2]
-            with open(fileOUT, 'w+'):
-                pass
+                
+                
+            # turn each value in the list produced from ".split()" to an integer
+            grid_list = [[map(int, row.split(', '))] for row in grid_string]
+            
+            # determine dimensions of the read grid (converted to nested list) 
+            if len(grid_list) == 4:
+                grids = [(grid_list, 2, 2)]
+            if len(grid_list) == 6:
+                grids = [(grid_list, 2, 3)]
+            if len(grid_list) == 9:
+                grids = [(grid_list, 3, 3)]
+                
+            else:
+                print(f"This solver doesn't support this size of sudoku grid.\n\nUSAGE: {USAGE_MESSAGE}")
+                exit()
+                
+            fileOUT = FILES[1]
             N_flag_args += 1
-            generate_output_file = True
+            get_IO_file = True
+         
+        # exit program if if 2 files are not entered after the '-file' flag
         else:
-            print('error 2')
+            print(f"Both an INPUT and OUTPUT files must be entered."\
+                  "\n\nUSAGE: {USAGE_MESSAGE}")
             exit()
 
-# 	#Look for the hints flag statement
-#     if '-hint' in argvars[0:MAX_FLAG_CMMDS]:
-#         generate_hints = True
+ 	#Look for the hints flag statement
+    if '-hint' in flags:
+        pass
 
-#     #Look for the profile flag
-#     if '-profile' in argvars[0:MAX_FLAG_CMMDS]:
-#         generate_hints = True
+    #Look for the profile flag
+    if '-profile' in flags:
+        pass
+        
 
-	#Catch error of no (valid) flags
+	#Catch error of no (valid) flags being entered
     if N_flag_args == 0:
-        print(USAGE_MESSAGE)
-        print('error 3')
+        print(f"Please enter a valid flag.\n\nUSAGE: {USAGE_MESSAGE}")
         exit()
     
-    return generate_explanation, generate_output_file, fileOUT, grids, generate_hints, generate_solution_profile
+    return get_explain, get_IO_file, fileOUT, grids, get_hints, NUMBER_OF_HINTS, get_solver_profile
+
+'''
+===================================
+APPLICATION OF PARSED FLAGS:
+===================================
+'''
+
+def write_explanation_to_file(fileOUT):
+    '''
+    Writes the explanation of how a full/partial solution was reached to the 
+    same file the solution is writtent to
+    ----------
+    arguments : fileOUT - name and type of file to which the explanation 
+                            should be written
+    returns: None.
+    '''
+    
+    # append the lines of solution explanation to the already created grid
+    with open(fileOUT, 'a') as output_file:
+        output_file.writelines('\n\nSolution Instructions:')
+        output_file.writelines(reversed(explanation_points))
+        
+    return
+
+def write_solution_to_file(solution, fileOUT):
+    '''
+    Convert full/partial solution that was reached to string form, in order to
+    write this version of the solution to the a file given by the user.
+    ----------
+    arguments : solution - nested list, solution grid of integers
+                fileOUT - string, name and type of file to which the explanation 
+                            should be written
+    returns: None.
+    '''
+    # convert solution to string form
+    solution = [str(row).strip('[]') + '\n' for row in solution]
+    
+    # create a new (or write over an existing) file 
+    ##  and write each line of the string version to the file
+    with open(fileOUT, 'w+') as output_file:
+        output_file.writelines(solution)
+        
+    return
+
+def give_solution_hints(N, solution):
+        
+    return
+
+def plot_performance(avg_times):
+    #matplotlib?
+    return
 
 '''
 ===================================
@@ -310,42 +349,58 @@ def main(argvars):
         print("Running test script for coursework 3")
         print("====================================")
         
-        generate_explanation, generate_output_file, fileOUT, grids, generate_hints, generate_solution_profile = sort_terminal_arguments(argvars)
+        get_explain, get_IO_file, fileOUT, grids, get_hints, NUMBER_OF_HINTS, get_solver_profile = sort_terminal_arguments(argvars)
         
         global explanation_points
+        global original_empty_cells
+        # make these variables global in order to edit them in this function
         
-        explanation_points = []
+        # N = NUMBER_OF_HINTS
         
         for (i, (grid, n_rows, n_cols)) in enumerate(grids):
-                print("Solving grid: %d" % (i+1))
+            
+                explanation_points = []
+                original_empty_cells = []
+                # reset these varaibles to empty lists before solving each new grid
+                
                 start_time = time.time()
                 solution = solve(grid, n_rows, n_cols)
-                # print(solution)
+                
+                # this is simply to see whats happening to the grids while editing
+                print(f"\nsolution: {solution}")
                 if check_solution(solution, n_rows, n_cols):
                         print("grid %d correct" % (i+1))
                         points = points + 10
                 else:
                         print("grid %d incorrect. No solution can be found." % (i+1))
+                
                 elapsed_time = time.time() - start_time
-                # print("Solved in: %f seconds" % elapsed_time)
                 
-                # explanation_points = [f"\n{instruction}" for instruction in explanation_points]
-                # print(*explanation_points)
+                if get_hints:
+                    # N number of hints used in a seperate function above?
+                    # probably just print to terminal if not asked to write to file??:
+                    # if not not generate_output_file:
+                    pass
                 
-                if generate_output_file:
-                    solution = [str(row).strip('[]') + '\n' for row in solution]
-                    output_file = open(fileOUT, 'w+')
-                    output_file.writelines(solution)
-                    if generate_explanation:
-                        output_file.writelines('\n\nSolution Instructions:')
-                        output_file.writelines(reversed(explanation_points))
-                    output_file.close()
-                    
-                elif generate_explanation:
+                if get_IO_file:
+                    write_solution_to_file(solution, fileOUT)
+                    if get_explain:
+                        write_explanation_to_file(fileOUT)
+                            
+                if get_explain and not get_IO_file:
+                    for row in solution:
+                        print(row)
+                        
+                    # reversed so that the first empty space filled is explained first (for the recursive function)
+                    # may have to change this for the wavefront solver? if explanations saved in the correct order
                     print(*reversed(explanation_points))
                     print("\n\n\n")
-            
-
+                    
+                if get_solver_profile:
+                    # something to do with average timing - so, make sure time function only records solver time
+                    ## i.e. don't include user input time
+                    pass
+         
         print("====================================")
         print("Test script complete, Total points: %d" % points)
 

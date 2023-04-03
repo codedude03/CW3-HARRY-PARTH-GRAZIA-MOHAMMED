@@ -13,3 +13,17 @@
 	---> feeding 'n' as an argument to avoid repetition
 - !NEED TO: add docstrings to all functions; write full error messages were needed; merge flagging code to complete Task 1&2
 
+
+
+03/04/2023 [12:38]
+- minimised some functions and loops to take up less space (please expand if needed when editing)
+- QUESTIONS:	what is index_found needed for in line 128?; 
+		do we have to be able to parse multiples of the same flag (e.g. multiple input and output files at once)?;
+		how do we make sure that the number of hints doesn't exceed the number of empty spaces (or is negative);
+		confused, are we supposed to measure the performance of the solver based on grids the user enters? - same with explain flag?
+
+- added separate function to perform given certain flags are entered (i.e. in/out and explain?)
+- added general comments (including those just for temporary use in editing)
+- !NEED TO: 	- merge flagging code to complete Task 1&2; 
+		- use the get_squares function given to check for square duplicates (in the recursive solve function)?;
+		- start task 3, waveform solver (delegate parts)
