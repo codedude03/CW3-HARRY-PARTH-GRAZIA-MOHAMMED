@@ -153,8 +153,14 @@ def dup_check(grid_to_check, n_rows, n_cols, location, i, n):
         return True
     
 original_empty_cells = []
+# global spaces_filled
+spaces_filled = 0
+global hint_grids
+hint_grids = []
 
 def recursive_solve(grid, n_rows, n_cols):
+        global spaces_filled
+        global hint_grid_outputted
     
         #N is the maximum integer considered in this board
         n = n_rows*n_cols
@@ -207,12 +213,32 @@ def recursive_solve(grid, n_rows, n_cols):
         #for the least value cell, iterate the possibles and recursive solve for each, returning the solution if found
         for possible_val in least_possible:
                 temp_grid[location[0]][location[1]] = possible_val
+
+                # Section which gives the users hints
+                spaces_filled += 1
+                hint_grids.append(temp_grid)
+                if generate_hints:
+                        if not hint_grid_outputted:
+                                if NUMBER_OF_HINTS == spaces_filled:
+                                        give_solution_hints(NUMBER_OF_HINTS, hint_grids[NUMBER_OF_HINTS - 1])
+                                        hint_grid_outputted = True
+                
                 attempt = recursive_solve(temp_grid, n_rows, n_cols)
                 # print(attempt)
                 if attempt:
-                    explanation_points.append(f"\nPut {possible_val} in location {location_readable}.")
+                        
+                        explanation_points.append(f"\nPut {possible_val} in location {location_readable}.")
+                        
+                        if generate_hints:
+                                if not hint_grid_outputted:
+                                        if int(NUMBER_OF_HINTS) >= int(len(original_empty_cells)):
+                                                print(int(len(original_empty_cells)))
+                                                print("complete grid has been outputted as the number of hints requested is greater than the number of empty spaces.",attempt)
+                                                hint_grid_outputted = True
+                        
+                    
                     #print(attempt)
-                    return attempt
+                        return attempt
 
         #reset temp_grid if solution not found, then return false to test next value in parent recursion
         #temp_grid[location[0]][location[1]] = 0
@@ -321,9 +347,11 @@ def sort_terminal_arguments(argvars):
     N_flag_args = 0
     generate_explanation = False
     generate_output_file = False
+    global generate_hints
     generate_hints = False
     generate_solution_profile = False
     fileOUT = None
+    global NUMBER_OF_HINTS
     NUMBER_OF_HINTS = None
     # global test_grids
     # grids = []
@@ -383,7 +411,12 @@ def sort_terminal_arguments(argvars):
 
  	#Look for the hints flag statement
     if '-hint' in flags:
-        pass
+        generate_hints = True
+        N_flag_args += 1
+        position_of_number = sys.argv.index("-hint")
+        NUMBER_OF_HINTS = int(sys.argv[position_of_number + 1])
+    else:
+        generate_hints == False
 
     #Look for the profile flag
     if '-profile' in flags:
@@ -406,7 +439,10 @@ def sort_terminal_arguments(argvars):
 def write_explanation_to_file(fileOUT):
     with open(fileOUT, 'a') as output_file:
         output_file.writelines('\n\nSolution Instructions:')
-        output_file.writelines(reversed(explanation_points))
+        if generate_hints:
+            output_file.writelines(reversed(explanation_points[-NUMBER_OF_HINTS:]))
+        else:
+            output_file.writelines(reversed(explanation_points))
     return
 
 def write_solution_to_file(solution, fileOUT):
@@ -415,8 +451,8 @@ def write_solution_to_file(solution, fileOUT):
         output_file.writelines(solution)
     return
 
-def give_solution_hints(N, solution):
-    
+def give_solution_hints(N, hint_grid):
+    print("The following grid has the first", N, "spaces filled out", hint_grid)
     return
 
 def plot_performance(avg_times):
@@ -436,13 +472,20 @@ def main(argvars):
         
         generate_explanation, generate_output_file, fileOUT, grids, generate_hints, NUMBER_OF_HINTS, generate_solution_profile = sort_terminal_arguments(argvars)
         # print(f"flags tru/not : {sort_terminal_arguments(argvars)}")
-        
+        global hint_explanation_points
         global explanation_points
         global original_empty_cells
         
         
         for (i, (grid, n_rows, n_cols)) in enumerate(grids):
+                global spaces_filled
+                spaces_filled = 0
+                global hint_grids
+                hint_grids = []
+                global hint_grid_outputted
+                hint_grid_outputted = False
                 # print("Solving grid: %d" % (i+1))
+                hint_explanation_points = []
                 explanation_points = []
                 original_empty_cells = []
                 start_time = time.time()
@@ -450,7 +493,7 @@ def main(argvars):
                 #print(grid)
                 
                 solution = solve(grid, n_rows, n_cols)
-                print(solution)
+                #print(solution)
                 # print(f"solution: {solution}")
                 # if check_solution(solution, n_rows, n_cols):
                 #         print("grid %d correct" % (i+1))
@@ -474,8 +517,13 @@ def main(argvars):
                     for row in solution:
                         print(row)
                     # print([f"{row}\n" for row in solution])
-                    print(*reversed(explanation_points))
-                    print("\n\n\n")
+                if generate_hints:
+                        print('These are the following ', NUMBER_OF_HINTS, 'moves already filled out:',
+                                *reversed(explanation_points[-NUMBER_OF_HINTS:]))
+                        print("\n\n\n")
+                else:
+                        print(*reversed(explanation_points))
+                        print("\n\n\n")
                     
                 if generate_solution_profile:
                     pass
