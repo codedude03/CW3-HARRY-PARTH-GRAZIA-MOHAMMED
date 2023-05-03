@@ -1,7 +1,7 @@
 # CW3-HARRY-PARTH-GRAZIA-MOHAMMED
 CW3 python file to solve all size sudokus as efficiently as possible.
 
-This is a Python script for a Sudoku solver program. The program uses three technqiues to solve the sudoku grids as efficiently as possible.
+This is a Python script for a Sudoku solver program. The program uses three technqiues to solve the sudoku grids as efficiently as possible. The program runs in the Git bash terminal.
 
 Follow the steps below to the run the program properly:
 
@@ -25,7 +25,7 @@ It is an open-source program and simple to use.
 
 Includes grids in the script and within files provided with increasing difficulty.
 
-Includes flags that are called in any terminal including Git bash.
+Includes flags that are called in the Git bash terminal.
 
 Using flags it produces solutions, hints, and explain of a grid as well as a plot of the performance of the solvers in the script.
 
