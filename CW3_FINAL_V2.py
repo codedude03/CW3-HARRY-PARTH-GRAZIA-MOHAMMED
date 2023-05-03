@@ -8,6 +8,7 @@ import os
 import random
 import matplotlib.pyplot as plt
 import CW3_profile_grids as sgd
+
 USAGE_MESSAGE = "Usage: ./CW3_INPUT_OUTPUT.py (-flag). Where -flag is of the\
  formats:\n -explain, -file INPUT_file OUTPUT_file, -hint N, -profile\n\
  or a combination of them all"
@@ -126,42 +127,47 @@ def check_solution(grid, n_rows, n_cols):
 
 class EmptyCells:
     og_empty_cells = []
-    
+
     def __init__(self, x):
         self.x = x
         EmptyCells.og_empty_cells = self  # Set the instance as a class variable
-    
+
     def __str__(self):
         return str(self.x)
-    
+
 class SolutionSteps:
     explain_points = []
-    
+
     def __init__(self, x):
         self.x = x
         SolutionSteps.explain_points = self  # Set the instance as a class variable
-    
+
     def __str__(self):
         return str(self.x)
 
 
 def get_og_empty_cells(empty_cells):
+    '''
+    Checks for any empty cells within the grid using the class EmptyCells.
+    Prameters used is empty_cells
+    '''
     if not EmptyCells.og_empty_cells:
         EmptyCells.og_empty_cells = empty_cells
-    
+
     return
 
 def dup_check(grid_to_check, n_rows, n_cols, location, i, n):
         #function to check for duplicate in row column reduce redundant tests
-        
+
         #check in row
         if i in grid_to_check[location[0]]:
                 return False
-        
+
         #create column list
         column_list = []
         for row in grid_to_check:
                 column_list.append(row[location[1]])
+
         #check in column
         if i in column_list:
                 return False
@@ -172,16 +178,18 @@ def dup_check(grid_to_check, n_rows, n_cols, location, i, n):
         num_vert = n/n_rows
         num_horz = n/n_cols
         square_num = int(int(location[0]/n_rows)*num_horz) + int(location[1]/n_cols)
+
         #get the squares and identify the square to check in
         squares = get_squares(grid_to_check, n_rows, n_cols)
         square = squares[square_num]
+
         #check in square
         if i in square:
                 return False
 
         #return true if no duplicates found
         return True
-    
+
 original_empty_cells = []
 # global spaces_filled
 spaces_filled = 0
@@ -195,7 +203,7 @@ def random_solve(grid, n_rows, n_cols, max_tries=10000):
         args: grid, n_rows, n_cols, max_tries
         return: A solved grid (as a nested list), or the original grid if no solution is found
         '''
-        
+
         def fill_board_randomly(grid, n_rows, n_cols):
                 '''
                 This function will fill an unsolved Sudoku grid with random numbers
@@ -218,6 +226,7 @@ def random_solve(grid, n_rows, n_cols, max_tries=10000):
 
         for i in range(max_tries):
                 possible_solution = fill_board_randomly(grid, n_rows, n_cols)
+
                 if check_solution(possible_solution, n_rows, n_cols):
                         return possible_solution
 
@@ -226,7 +235,7 @@ def random_solve(grid, n_rows, n_cols, max_tries=10000):
 def recursive_plus_solve(grid, n_rows, n_cols):
         global spaces_filled
         global hint_grid_outputted
-    
+
         #N is the maximum integer considered in this board
         n = n_rows*n_cols
 
@@ -240,38 +249,43 @@ def recursive_plus_solve(grid, n_rows, n_cols):
         if not any(0 in sublist for sublist in temp_grid):
                 if check_solution(grid, n_rows, n_cols):
                         return temp_grid
+
                 return False
 
         #locate empty cells and store in array of tuples
         empty_cells = []
         row = 0
         index_found = False
+
         #iterate though rows and columns, if the cell is 0 add location tuple to array
         for row in range(len(temp_grid)):
                 for column, cell in enumerate(temp_grid[row]):
                         if cell == 0:
                                 location = (row, column)
                                 empty_cells.append(location)
-        
+
 ##        global original_empty_cells
-##        # original_empty_cells = empty_cells[:] 
+##        # original_empty_cells = empty_cells[:]
 ##        if not original_empty_cells:
 ##            original_empty_cells = copy.deepcopy(empty_cells)
 
+        #using this function it checks for empty cells in the grid.
         get_og_empty_cells(empty_cells)
-                                
+
         empty_cell_possibles = []
-        #this section checks for what values can go in each empty cell based on duplicates in row/column/box
-        for cell_num, location in enumerate(empty_cells): #iterate empty cells, use enumerate to get cell num
+        #this section checks for what values can go in each empty cell based on duplicates in row/column/box.
+        for cell_num, location in enumerate(empty_cells): #iterating through empty cells, using enumerate to get cell_num.
+
                 list_pos = []
                 for i in range(1,n+1):
+
                         #check for duplicates within column/row/box
                         if dup_check(temp_grid, n_rows, n_cols, location, i, n):
-                                list_pos.append(i) #add possible value to list
-                                
+                                list_pos.append(i) #adding possible value(s) to list
+
                 #add list of possible values for cell to list of values for all empty cells
                 empty_cell_possibles.append(list_pos)
-        
+
         # print(empty_cell_possibles)
         #identify least possible values and location of the cell
         least_possible = min(empty_cell_possibles, key=len)
@@ -290,33 +304,36 @@ def recursive_plus_solve(grid, n_rows, n_cols):
                                 if NUMBER_OF_HINTS == spaces_filled:
                                         give_solution_hints(NUMBER_OF_HINTS, hint_grids[NUMBER_OF_HINTS - 1])
                                         hint_grid_outputted = True
-                
+
                 attempt = recursive_plus_solve(temp_grid, n_rows, n_cols)
                 # print(attempt)
                 if attempt:
-                        
+
                         #explanation_points.append(f"\nPut {possible_val} in location {location_readable}.")
-                        SolutionSteps.explain_points.append(f"\nPut {possible_val} in location {location_readable}.")  
-                        
+                        SolutionSteps.explain_points.append(f"\nPut {possible_val} in location {location_readable}.")
+
                         if generate_hints:
                                 if not hint_grid_outputted:
                                         if int(NUMBER_OF_HINTS) >= int(len(original_empty_cells)):
                                                 print(int(len(original_empty_cells)))
-                                                print("complete grid has been outputted as the number of hints requested is greater than the number of empty spaces.",attempt)
+
+                                                print("complete grid has been outputted as the number of hints "
+                                                      "requested is greater than the number of empty spaces.",attempt)
+
                                                 hint_grid_outputted = True
-                        
-                    
+
+
                     #print(attempt)
                         return attempt
 
-        #reset temp_grid if solution not found, then return false to test next value in parent recursion
+        #resets temp_grid if solution not found, then return false to test next value present in recursion
         #temp_grid[location[0]][location[1]] = 0
         return False
 
 def recursive_solve(grid, n_rows, n_cols):
         #global spaces_filled
         #global hint_grid_outputted
-    
+
         #N is the maximum integer considered in this board
         n = n_rows*n_cols
 
@@ -325,40 +342,46 @@ def recursive_solve(grid, n_rows, n_cols):
 
         #print(grid)
 
-        #check if grid full, therefore check if solution found
-        #if there are any 0s, the below would return True (not False), meaning there are still empty spaces
+        # Check if grid is full, therefore check if solution is found.
+        # If there are any 0s, the below would return True (not False),
+        # meaning there are still empty spaces within the grid.
         if not any(0 in sublist for sublist in temp_grid):
                 if check_solution(grid, n_rows, n_cols):
                         return temp_grid
                 return False
 
-        #locate empty cells and store in array of tuples
+        #locate empty cells and storing in an array of tuples
         empty_cells = []
         row = 0
         index_found = False
+
         #iterate though rows and columns, if the cell is 0 add location tuple to array
         for row in range(len(temp_grid)):
                 for column, cell in enumerate(temp_grid[row]):
                         if cell == 0:
                                 location = (row, column)
                                 empty_cells.append(location)
-        
+
         #global original_empty_cells
-        # original_empty_cells = empty_cells[:] 
+        # original_empty_cells = empty_cells[:]
         #if not original_empty_cells:
         #    original_empty_cells = copy.deepcopy(empty_cells)
+
+
         empty_cell_possibles = []
+
         #this section checks for what values can go in each empty cell based on duplicates in row/column/box
-        for cell_num, location in enumerate(empty_cells): #iterate empty cells, use enumerate to get cell num
+        for cell_num, location in enumerate(empty_cells): #iterating through empty cells, using enumerate to get cell_num
                 list_pos = []
                 for i in range(1,n+1):
+
                         #check for duplicates within column/row/box
                         #if dup_check(temp_grid, n_rows, n_cols, location, i, n):
-                        list_pos.append(i) #add possible value to list
-                                
-                #add list of possible values for cell to list of values for all empty cells
+                        list_pos.append(i) #adding possible value to list
+
+                #adding list of possible value(s) for cell to list of values for all empty cells
                 empty_cell_possibles.append(list_pos)
-        
+
         # print(empty_cell_possibles)
         #identify least possible values and location of the cell
         least_possible = min(empty_cell_possibles, key=len)
@@ -377,21 +400,21 @@ def recursive_solve(grid, n_rows, n_cols):
 ##                                if NUMBER_OF_HINTS == spaces_filled:
 ##                                        give_solution_hints(NUMBER_OF_HINTS, hint_grids[NUMBER_OF_HINTS - 1])
 ##                                        hint_grid_outputted = True
-                
+
                 attempt = recursive_solve(temp_grid, n_rows, n_cols)
                 # print(attempt)
                 if attempt:
-                        
+
                         #explanation_points.append(f"\nPut {possible_val} in location {location_readable}.")
-                        
+
 ##                        if generate_hints:
 ##                                if not hint_grid_outputted:
 ##                                        if int(NUMBER_OF_HINTS) >= int(len(original_empty_cells)):
 ##                                                print(int(len(original_empty_cells)))
 ##                                                print("complete grid has been outputted as the number of hints requested is greater than the number of empty spaces.",attempt)
 ##                                                hint_grid_outputted = True
-                        
-                    
+
+
                     #print(attempt)
                         return attempt
 
@@ -407,64 +430,76 @@ def wavefront_solve(grid, n_rows, n_cols):
         first_pass = False
         one_pos = False
         no_list = True
-        #setup empty list of possible values
+
+        #storing list of possible values using an empty list
         list_of_pos = []
-        #iterate trough all cells keeping row and column numbers as variables
+
+        #iterating through all cells keeping row and column numbers as variables
         for row in range(len(grid)):
                 for column, cell in enumerate(grid[row]):
-                        #on first pass we replace 0's with all possible digits and set first pass flag true
+
+                        #on first pass replacing 0's with all possible digits and setting first pass flag true
                         if cell == 0:
                                 grid[row][column] = [i for i in range(1,n+1)]
                                 no_list = False
                                 first_pass = True
+
                         #on every other recursion we locate list cells
                         if isinstance(cell, list):
                                 new_pos = []
+
                                 #iterate through possible values only keeping the valid ones
                                 for pot_val in cell:
                                         if dup_check(grid, n_rows, n_cols, (row,column), pot_val, n):
                                                 new_pos.append(pot_val)
+
                                 #if any cells have no valid options, return False to start backtrack
                                 if len(new_pos) == 0:
                                         return False
+
                                 #if any cells only have 1 possibility, update the cell to that value
                                 if len(new_pos) == 1:
+
                                         #set one possibility flag true to skip the section for finding minimum later
                                         one_pos = True
                                         new_pos = new_pos[0]
+
                                 #if cell has multiple options, store in list used later to find minimum length cell
                                 else:
                                         list_of_pos.append([(row,column),new_pos])
-                                        #no list flag false, meaning more recursions until all cells are single value
+
+                                        #no list flag "false", meaning more recursions until all cells are single value
                                         no_list = False
                                 grid[row][column] = new_pos
 
-        #check if we have no definite changes, therefore iterate through smallest possible    
-        #also check we arent on first pass when no duplicate checking took place
+        #check if we have no definite changes, therefore iterate through smallest possible
+        #also check we arent on first pass when no duplicate checking took place.
         if not one_pos and not first_pass:
                 min_len = n
+
                 #find the minimum number of possibilities and corresponding location
                 for index, location_val_pair in enumerate(list_of_pos):
                         if len(location_val_pair[1]) < min_len:
                                 min_len = len(location_val_pair[1])
                                 least_pos = list_of_pos[index]
-                #iterate through these possibilities, passing deepcopy of grid to wavefront recursion each time
+
+                #iterating through these possibilities, passing deepcopy of grid to wavefront recursion each time
                 for val in least_pos[1]:
                         copy_grid = copy.deepcopy(grid)
                         copy_grid[least_pos[0][0]][least_pos[0][1]] = val
                         new_attempt = wavefront_solve(copy_grid, n_rows, n_cols)
 
-                        #check if complete grid returned, or start backtrack
+                        #checking if complete grid returned, or start backtrack
                         if new_attempt:
                                 return new_attempt
-                return False            
+                return False
 
         #if no lists were found, grid must be complete so return grid
         if no_list:
                 return grid
 
-        #if at least one value was updated as it was only possible value
-        #for location, start next recursion to update other cells as a result
+        #if at least one value was updated as it was the only possible value
+        #for that location, start next recursion to update other cells as a result.
         copy_grid = copy.deepcopy(grid)
         new_attempt = wavefront_solve(copy_grid, n_rows, n_cols)
         if new_attempt:
@@ -478,27 +513,27 @@ def wavefront_solve(grid, n_rows, n_cols):
 ##        Comment out one of the lines below to either use the random or recursive solver
 ##        '''
 ##        # print(f"grid to solve: {grid}, solution: {recursive_solve(grid, n_rows, n_cols)}")
-##        
+##
 ##        return recursive_solve(grid, n_rows, n_cols)
 
 def sort_terminal_arguments(argvars):
-    
+
     '''
-    Process a list of arguments entered from the terminal to determine wheteher 
-    an action should be carried out on the grid, the performance of the solver 
+    Process a list of arguments entered from the terminal to determine wheteher
+    an action should be carried out on the grid, the performance of the solver
     should be analysed, or a process should be explained to the user
-   
+
     arguments: argvars, a list of termnial command line arguments
     returns:    generate_explanation - boolean variable indicating whether an explanation of the solution's steps should be given
                 generate_output_file - boolean variable indicating which file to find an unsolved grid from and which file to write the solution to
                 fileOUT - a string, giving the name of the new file that the solution should be written to (if the "generate_output_file" variable is true)
                 grids -a list of tuples from a file, or from the default global variable, returns the grid to use (and its dimensions)
                 generate_hints - boolean variable indicating that N empty spaces of an unsolved grid should be filled correctly
-                generate_solution_profile - boolean variable indicating that the performance of the soduko solver should be displayed to the user   
+                generate_solution_profile - boolean variable indicating that the performance of the soduko solver should be displayed to the user
                 NUMBER_OF_HINTS - an integer value of the number of hints the user wants the progrma to generate
-                
+
     '''
-    
+
     N_flag_args = 0
     generate_explanation = False
     generate_output_file = False
@@ -512,6 +547,7 @@ def sort_terminal_arguments(argvars):
     # grids = []
     global grids
 
+    # dictionary used to store the bool type, number of flags used,
     return_dict = {
     "N_flag_args": 0,
     "generate_explanation": False,
@@ -523,7 +559,7 @@ def sort_terminal_arguments(argvars):
     "grids": []
     }
 
-    
+
     #Look for valid number of arguments
     flags = [flag for flag in argvars if '-' in flag]
     # print(flags)
@@ -532,7 +568,7 @@ def sort_terminal_arguments(argvars):
         print(f"Only these 4 flags can be entered (each up to once) at any one time. \n\nUSAGE: {USAGE_MESSAGE}")
         # although should we have it so that it can parse multiple file flag inputs?
         exit()
-    
+
     if any(item not in POSSIBLE_FLAGS for item in flags):
         print(f"An invalid flag was entered.\n\nUSAGE: {USAGE_MESSAGE}")
         # although should we have it so that it can parse multiple file flag inputs?
@@ -571,18 +607,18 @@ def sort_terminal_arguments(argvars):
             elif len(grid_vals) == 9:
                 #grids = [(grid_vals, 3, 3)]
                 return_dict["grids"] = [(grid_vals, 3, 3)]
-                
+
             else:
                 print(f"This solver doesn't support this size of sudoku grid.\n\nUSAGE: {USAGE_MESSAGE}")
                 exit()
-                
+
 ##            fileOUT = FILES[1]
 ##            N_flag_args += 1
 ##            generate_output_file = True
             return_dict["fileOUT"] = FILES[1]
             return_dict["N_flag_args"] += 1
             return_dict["generate_output_file"] = True
-            
+
         else:
             print(f"Both an INPUT and OUTPUT files must be entered.\n\nUSAGE: {USAGE_MESSAGE}")
             exit()
@@ -600,7 +636,7 @@ def sort_terminal_arguments(argvars):
     if '-profile' in flags:
         return_dict["grids"] = profile_grids
         # return_dict["grids"] = test_grids
-        
+
         return_dict["N_flag_args"] += 1
         return_dict["generate_solution_profile"] = True
 
@@ -608,7 +644,7 @@ def sort_terminal_arguments(argvars):
         return_dict["N_flag_args"] += 1
         grid_copy = (copy.deepcopy(grids[0][0]),grids[0][1],grids[0][2])
         print(wavefront_solve(grid_copy[0],grid_copy[1],grid_copy[2]))
-        
+
 
     #Catch error of no (valid) flags
     if return_dict["N_flag_args"] == 0:
@@ -639,7 +675,13 @@ def give_solution_hints(N, hint_grid):
     return
 
 def plot_performance(avg_times):
-    
+    '''
+    This function is used to plot the average time in seconds verse the grid size of
+    the sudoku solver used in the script.
+    '''
+
+
+    # category leballing for the plot
     labels = ['2x2', '2x3', '3x3']
 
     # Set the width of each bar and the spacing between groups
@@ -656,49 +698,60 @@ def plot_performance(avg_times):
     plt.bar(x_pos3, list(avg_times.values())[2][0], width=bar_size, color='gray', label=str(list(avg_times.keys())[2]))
     #plt.bar(x_pos3, list(avg_times.values())[2][0], width=bar_size, color='purple', label=str(list(avg_times.keys())[2]))
 
-    # Add labels and title
+    # Adding labels and title to the plot
     plt.xticks([x + bar_size for x in range(len(labels))], labels)
-    
+
     plt.xlabel('Sudoku Grid Size')
     plt.ylabel('Average solve time (s)')
     plt.title('Sudoku Solver Performance')
-    
+
+    plt.savefig("Performance.png",dpi =300)
     plt.legend()
     plt.show()
-    
+
     return
 
 
 def get_avg_solve_times(solver, grids):
-    
+
     times22 = []
     times23 = []
     times33 = []
-    
+
+    # iterating through the grids in the script
     for (i, (grid, n_rows, n_cols)) in enumerate(grids):
-            
+
+            # starting the timer for that grid
             start_time = time.time()
+
+            # Parameter used to go through all the solvers in the script.
             solver(grid, n_rows, n_cols)
             # random_solve(grid, n_rows, n_cols)
+
+            # difference between the start and end time
             elapsed_time = time.time() - start_time
-            
+
+            # sorting the grid sizes for the elapsed_time of that grid used.
             if (n_rows, n_cols) == (2,2):
                 times22.append(elapsed_time)
             elif (n_rows, n_cols) == (2,3):
                 times23.append(elapsed_time)
             elif (n_rows, n_cols) == (3,3):
                 times33.append(elapsed_time)
-                
+
     avg22_time = np.mean(times22)
     avg23_time = np.mean(times23)
     avg33_time = np.mean(times33)
-    
+
+    # storing all the times recording when elapsed_time for each grid size as a sub-list
     all_times = [times22, times23, times33]
-                
+
     # avg_times = np.array([avg22_time, avg23_time, avg33_time])
+
+    # calculating the average for all the grid by iterating over the sub-list of all_times
     avg_times = np.array([np.mean(i) for i in all_times])
     sdvs = np.array([np.std(i) for i in all_times])
-                
+
     return (avg_times, sdvs)
 
 '''
@@ -712,7 +765,7 @@ def main(argvars):
 
         # print("Running test script for coursework 3")
         # print("====================================")
-        
+
         #generate_explanation, generate_output_file, fileOUT, grids, generate_hints, NUMBER_OF_HINTS, generate_solution_profile = sort_terminal_arguments(argvars)
         # print(f"flags tru/not : {sort_terminal_arguments(argvars)}")
         global hint_explanation_points
@@ -720,40 +773,45 @@ def main(argvars):
         global original_empty_cells
 
         re_dict = sort_terminal_arguments(argvars)
-        
+
         if re_dict['generate_solution_profile']:
-            
+
             print("Here is a graph profiling the performance of 3 "\
                   "different solvers in this program"\
                       "\n(All other flags have been ignored)...")
-                
+
+            # storing the average of the different solvers and size of the grids as a dictionay.
             avg_slv_times = {}
-            
+
+            # adding the random solver variables to the dictionay
             avg_slv_times['Random Solve'] =\
                 get_avg_solve_times(random_solve, re_dict['grids'])
-                
-            #avg_slv_times['Recursive Solve'] =\
-             #   get_avg_solve_times(random_solve, re_dict['grids'])
-                
+
+            # avg_slv_times['Recursive Solve'] =\
+            #    get_avg_solve_times(recursive_solve, re_dict['grids'])
+
+            # adding the Improved recursive solver variables to the dictionay
             avg_slv_times['Improved Recursive Solve'] =\
                 get_avg_solve_times(recursive_plus_solve, re_dict['grids'])
 
+            # adding the wavefront solver variables to the dictionay
             avg_slv_times['Wavefront Solve'] =\
-                get_avg_solve_times(wavefront_solve, re_dict['grids'])            
-            
+                get_avg_solve_times(wavefront_solve, re_dict['grids'])
+
+            # using this function it plot the data that is stored in the dictionay.
             plot_performance(avg_slv_times)
 
         else:
-        
+
             N = re_dict['NUMBER_OF_HINTS']
-            
+
             for (i, (grid, n_rows, n_cols)) in enumerate(re_dict['grids']):
                     # print("Solving grid: %d" % (i+1))
 
                     hint_explanation_points = []
                     explanation_points = []
                     original_empty_cells = []
-                    
+
                     SolutionSteps.explain_points = []
                     explanation = SolutionSteps.explain_points
 
@@ -763,35 +821,35 @@ def main(argvars):
                     hint_grid_outputted = False
                     # print("Solving grid: %d" % (i+1))
                     hint_explanation_points = []
-                    
+
                     EmptyCells.og_empty_cells = []
-                    
+
                     start_time = time.time()
                     solution = recursive_plus_solve(grid, n_rows, n_cols)
-                    
+
                     elapsed_time = time.time() - start_time
-                    
+
                     if re_dict['generate_hints']:
                         pass
-                    
+
                     if re_dict['generate_output_file']:
                         write_solution_to_file(solution, re_dict['fileOUT'])
 
                         print(hint_explanation_points)
-                        
+
                         if re_dict['generate_explanation'] or generate_hints:
                             write_explanation_to_file(re_dict['fileOUT'])
-                        #if 
-                    
+                        #if
+
                     if re_dict['generate_explanation']\
                         and not re_dict['generate_output_file']:
-                        
+
                         for row in solution:
                             print(row)
-                        
+
                         print(*reversed(explanation))
                         print("\n\n\n")
-        
+
         for (i, (grid, n_rows, n_cols)) in enumerate(grids):
                 global spaces_filled
                 spaces_filled = 0
@@ -804,7 +862,7 @@ def main(argvars):
                 #start_time = time.time()
 
                 #print(grid)
-                
+
                 #solution = recursive_plus_solve(grid, n_rows, n_cols)
                 #print(solution)
                 # print(f"solution: {solution}")
@@ -813,11 +871,11 @@ def main(argvars):
                 #         points = points + 10
                 # else:
                 #         print("grid %d incorrect. No solution can be found." % (i+1))
-                
+
                 #elapsed_time = time.time() - start_time
-                
+
                 # print(len(explanation_points))
-                            
+
                 # print(len(explanation_points))
 ##                if generate_explanation and not generate_output_file:
 ##                    for row in solution:
@@ -830,12 +888,12 @@ def main(argvars):
 ##                else:
 ##                        print(*reversed(explanation_points))
 ##                        print("\n\n\n")
-##                    
+##
 ##                if generate_solution_profile:
 ##                    pass
-####        
-                
-            
+####
+
+
         # print(grids[:3])
         # print("====================================")
         # print("Test script complete, Total points: %d" % points)
