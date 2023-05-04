@@ -45,7 +45,7 @@ Project usage of the implemented flags:
 
 -profile -> "./main.py -profile", with  or without a file(s) input, it produces a plot.
 
--wavefront -> "./main.py -wavefront", when used it shows the least possible number to be entered in that cell.
+-wavefront -> "./main.py -wavefront", when used it solves grids using wavefront progagation technique
 
 *note: -file, -hints, and -explain flags can be used at the simultaneously; -profile flag nullifies any other flag used; -wavefront works separately to these flags
 
