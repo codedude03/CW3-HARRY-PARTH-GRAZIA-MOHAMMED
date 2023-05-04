@@ -8,7 +8,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import CW3_profile_grids as sgd
-USAGE_MESSAGE = "Usage: ./CW3_INPUT_OUTPUT.py (-flag). Where -flag is of the\
+USAGE_MESSAGE = "Usage: ./CW3_FINAL_FINAL.py (-flag). Where -flag is of the\
  formats:\n -explain, -file INPUT_file OUTPUT_file, -hint N, -profile\n\
  or a combination of them all"
  # this tells us how to input the arguments
@@ -156,7 +156,7 @@ def get_og_empty_cells(empty_cells):
 
 def dup_check(grid_to_check, n_rows, n_cols, location, i, n):
         #function to check for duplicate in row, column, box to reduce redundant tests
-        
+
         #check in row
         if i in grid_to_check[location[0]]:
                 return False
@@ -190,7 +190,6 @@ global spaces_filled
 spaces_filled = 0
 
 def random_solve(grid, n_rows, n_cols, max_tries=10000):
-
         '''
         This function uses random trial and error to solve a Sudoku grid
         args: grid, n_rows, n_cols, max_tries
@@ -590,8 +589,14 @@ def give_full_solution(hint_grid):
     return
 
 def plot_performance(avg_times):
+    '''
+    This function is used to plot the average time in seconds verse the grid size of
+    the sudoku solver used in the script.
+    '''
+
     print('Plotting average perforance of random, recursive and wavefront. This may take up to 20 seconds')
-    
+
+    # category labelling for the plot
     labels = ['2x2', '2x3', '3x3']
 
     # Set the width of each bar and the spacing between groups
@@ -613,7 +618,8 @@ def plot_performance(avg_times):
     plt.xlabel('Sudoku Grid Size')
     plt.ylabel('Average solve time (s)')
     plt.title('Sudoku Solver Performance')
-    
+
+    plt.savefig("Performance.png",dpi=300)
     plt.legend()
     plt.show()
     
@@ -625,14 +631,21 @@ def get_avg_solve_times(solver, grids):
     times22 = []
     times23 = []
     times33 = []
-    
+
+    # iterating through the grids in the script
     for (i, (grid, n_rows, n_cols)) in enumerate(grids):
-            
+
+            # starting the timer for that grid
             start_time = time.time()
+
+            # Parameter used to go through all the solvers in the script.
             solver(grid, n_rows, n_cols)
             # random_solve(grid, n_rows, n_cols)
+
+            # difference between the start and end time
             elapsed_time = time.time() - start_time
-            
+
+            # sorting the grid sizes for the elapsed_time of that grid used.
             if (n_rows, n_cols) == (2,2):
                 times22.append(elapsed_time)
             elif (n_rows, n_cols) == (2,3):
@@ -643,10 +656,13 @@ def get_avg_solve_times(solver, grids):
     avg22_time = np.mean(times22)
     avg23_time = np.mean(times23)
     avg33_time = np.mean(times33)
-    
+
+    # storing all the times recording when elapsed_time for each grid size as a sub-list
     all_times = [times22, times23, times33]
                 
     # avg_times = np.array([avg22_time, avg23_time, avg33_time])
+
+    # calculating the average for all the grid by iterating over the sub-list of all_times
     avg_times = np.array([np.mean(i) for i in all_times])
     sdvs = np.array([np.std(i) for i in all_times])
                 
@@ -674,21 +690,26 @@ def main(argvars):
             print("Here is a graph profiling the performance of 3 "\
                   "different solvers in this program"\
                       "\n(All other flags have been ignored)...")
-                
+
+            # storing the average of the different solvers and size of the grids as a dictionay.
             avg_slv_times = {}
-            
+
+            # adding the random solver variables to the dictionay
             avg_slv_times['Random Solve'] =\
                 get_avg_solve_times(random_solve, re_dict['grids'])
                 
             #avg_slv_times['Recursive Solve'] =\
              #   get_avg_solve_times(random_solve, re_dict['grids'])
-                
+
+            # adding the Improved recursive solver variables to the dictionay
             avg_slv_times['Improved Recursive Solve'] =\
                 get_avg_solve_times(recursive_plus_solve, re_dict['grids'])
 
+            # adding the wavefront solver variables to the dictionay
             avg_slv_times['Wavefront Solve'] =\
                 get_avg_solve_times(wavefront_solve, re_dict['grids'])            
-            
+
+            # using this function it plot the data that is stored in the dictionay.
             plot_performance(avg_slv_times)
 
         else:
