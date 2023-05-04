@@ -11,7 +11,7 @@ Follow the steps below to the run the program properly:
 
 3-In Git bash navigate to the file called "CW3_HARRY_PARTH_GRAZIA_MOHAMMED" from your PC.
 
-4- Open and run the Program "CW3_FINAL_FINAL.py" using a software that run Python scripts.
+4- Open and run the Program "main.py" using a software that run Python scripts.
 
 5- Install the matplotlib libary if you haven't, using "pip install matplotlib".
 
@@ -37,25 +37,25 @@ There is an additional flag called wavefront which is representing the smallest 
 
 Project usage of the implemented flags:
 
--file -> "./CW3_FINAL_FINAL.py -file", must have a file input and output entered to solve a grid.
+-file -> "./main.py -file", must have a file input and output entered to solve a grid.
 
--hints -> "./CW3_FINAL_FINAL.py -hint", enter an N amount of hints for the grids in the script to solve the sudoku. As the number of hints increases the more empty cells are filled. If number of hints exceed the empty cell that grid will be solved.
+-hints -> "./main.py -hint", enter an N amount of hints for the grids in the script to solve the sudoku. As the number of hints increases the more empty cells are filled. If number of hints exceed the empty cell that grid will be solved.
 
--explain -> "./CW3_FINAL_FINAL.py -explain", when used it shows where each number should go correspounding to there cell using the grids in the script or a choosen file.
+-explain -> "./main.py -explain", when used it shows where each number should go correspounding to there cell using the grids in the script or a choosen file.
 
--profile -> "./CW3_FINAL_FINAL.py -profile", with  or without a file(s) input, it produces a plot.
+-profile -> "./main.py -profile", with  or without a file(s) input, it produces a plot.
 
--wavefront -> "./CW3_FINAL_FINAL.py -wavefront", when used it shows the least possible number to be entered in that cell.
+-wavefront -> "./main.py -wavefront", when used it shows the least possible number to be entered in that cell.
 
 *note: -file, -hints, and -explain flags can be used at the simultaneously; -profile flag nullifies any other flag used; -wavefront works separately to these flags
 
 
 Examples of how to use the flags in the Git bash terminal:
 
-"./CW3_FINAL_FINAL.py -file easy1.txt sol_easy1.txt" -> This will solve that inputted grid and saves it into another file as output.
+"./main.py -file easy1.txt sol_easy1.txt" -> This will solve that inputted grid and saves it into another file as output.
 
-"./CW3_FINAL_FINAL.py -explain" -> This will explain where each number should go for the grids in the script.
+"./main.py -explain" -> This will explain where each number should go for the grids in the script.
 
-"./CW3_FINAL_FINAL.py -file easy1.txt -explain" -> This will explain where each number should go for the grids in the file and outputs a file called "-explain" when opening it shows that expalination.
+"./main.py -file easy1.txt -explain" -> This will explain where each number should go for the grids in the file and outputs a file called "-explain" when opening it shows that expalination.
 
 **note: the size of the bars on the log graph produced can vary with each run; however the all performances are indeed measured!
