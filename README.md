@@ -58,7 +58,4 @@ Examples of how to use the flags in the Git bash terminal:
 
 "./CW3_FINAL_FINAL.py -file easy1.txt -explain" -> This will explain where each number should go for the grids in the file and outputs a file called "-explain" when opening it shows that expalination.
 
-**not: the size of the bars on the log graph produced can vary with each run; however the all performances are indeed measured!
-
-
-
+**note: the size of the bars on the log graph produced can vary with each run; however the all performances are indeed measured!
