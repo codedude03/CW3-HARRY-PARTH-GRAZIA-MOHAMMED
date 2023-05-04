@@ -543,16 +543,25 @@ def sort_terminal_arguments(argvars):
         return_dict["generate_solution_profile"] = True
 
     if '-wavefront' in flags:
+        print('Solving using wavefront')
+        for grid in grids:        
+            grid_copy = (copy.deepcopy(grid[0]),grid[1],grid[2])
+            start_time = time.time()
+            solution = wavefront_solve(grid_copy[0],grid_copy[1],grid_copy[2])
+            elapsed_time = time.time() - start_time
+            print('Solution:',*solution,'solved in ' + str(elapsed_time) + ' seconds', sep='\n')  
         return_dict["N_flag_args"] += 1
-        grid_copy = (copy.deepcopy(grids[0][0]),grids[0][1],grids[0][2])
-        print(wavefront_solve(grid_copy[0],grid_copy[1],grid_copy[2]))
         
 
     #run default if no flags given
     if return_dict["N_flag_args"] == 0:
         print('solving hardcoded grids using improved recursion')
-        for grid in range(len(grids)):
-            print(recursive_plus_solve(grids[grid][0],grids[grid][1],grids[grid][2]))
+        for grid in grids:
+            start_time = time.time()
+            solution = recursive_plus_solve(grid[0],grid[1],grid[2])
+            elapsed_time = time.time() - start_time
+            print('Solution:',*solution,'solved in ' + str(elapsed_time) + ' seconds', sep='\n')
+            print(recursive_plus_solve(grid[0],grid[1],grid[2]))
         #print(f"Please enter a valid flag.\n\nUSAGE: {USAGE_MESSAGE}")
         exit()
 
