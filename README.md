@@ -47,6 +47,8 @@ Project usage of the implemented flags:
 
 -wavefront -> "./CW3_FINAL_FINAL.py -wavefront", when used it shows the least possible number to be entered in that cell.
 
+*note: -file, -hints, and -explain flags can be used at the simultaneously; -profile flag nullifies any other flag used; -wavefront works separately to these flags
+
 
 Examples of how to use the flags in the Git bash terminal:
 
@@ -56,7 +58,7 @@ Examples of how to use the flags in the Git bash terminal:
 
 "./CW3_FINAL_FINAL.py -file easy1.txt -explain" -> This will explain where each number should go for the grids in the file and outputs a file called "-explain" when opening it shows that expalination.
 
-
+**not: the size of the bars on the log graph produced can vary with each run; however the all performances are indeed measured!
 
 
 
