@@ -48,7 +48,7 @@ Project usage of the implemented flags:
 -wavefront -> "./CW3_FINAL_FINAL.py -wavefront", when used it shows the least possible number to be entered in that cell.
 
 
-Example of how to use the flags in the Git bash terminal:
+Examples of how to use the flags in the Git bash terminal:
 
 "./CW3_FINAL_FINAL.py -file easy1.txt sol_easy1.txt" -> This will solve that inputted grid and saves it into another file as output.
 
