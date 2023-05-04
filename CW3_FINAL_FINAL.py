@@ -186,6 +186,7 @@ def dup_check(grid_to_check, n_rows, n_cols, location, i, n):
         return True
     
 original_empty_cells = []
+#define the number of spaces filled to be preset to 0
 global spaces_filled
 spaces_filled = 0
 
@@ -277,17 +278,15 @@ def recursive_plus_solve(grid, n_rows, n_cols):
         #for the least value cell, iterate the possibles and recursive solve for each, returning the solution if found
         for possible_val in least_possible:
                 temp_grid[location[0]][location[1]] = possible_val
-                #Number of spaces filled
+                #increases the  of spaces filled
                 spaces_filled += 1
                 #List of grids which have each move in them 
                 hint_grids.append(temp_grid)
                 attempt = recursive_plus_solve(temp_grid, n_rows, n_cols)
-                # print(attempt)
                 if attempt:
                         #explanation_points.append(f"\nPut {possible_val} in location {location_readable}.")
                     SolutionSteps.explain_points.append(f"\nPut {possible_val} in location {location_readable}.")
-                    
-                    #print(attempt)
+
                     return attempt
 
         #reset temp_grid if solution not found, then return false to test next value in parent recursion
@@ -449,8 +448,6 @@ def sort_terminal_arguments(argvars):
     fileOUT = None
     global NUMBER_OF_HINTS
     NUMBER_OF_HINTS = None
-    # global test_grids
-    # grids = []
     global grids
     
     #setup dictionary of booleans to singal flag conditions
@@ -469,8 +466,6 @@ def sort_terminal_arguments(argvars):
     
     #Look for valid number of arguments
     flags = [flag for flag in argvars if '-' in flag]
-    # print(flags)
-    # print(flags, len(flags))
     if len(flags) > MAX_FLAG_CMMDS or len(flags) != len(set(flags)):
         print(f"Only these 4 flags can be entered (each up to once) at any one time. \n\nUSAGE: {USAGE_MESSAGE}")
         # although should we have it so that it can parse multiple file flag inputs?
@@ -584,12 +579,13 @@ def write_solution_to_file(solution, fileOUT):
         output_file.writelines(solution)
     return
 
+#Function which outputs the hint grid.
 def give_solution_hints(N, hint_grid):
     print("The following grid has the first", N, "spaces filled out")
     for row in hint_grid:
         print(row)
     return
-
+#function which outputs the full solution when number of hints would output the entire solution
 def give_full_solution(hint_grid):
     print("complete grid has been outputted as the number of hints requested is greater than the number of empty spaces:")
     for grid in hint_grid:
@@ -727,17 +723,15 @@ def main(argvars):
             for (i, (grid, n_rows, n_cols)) in enumerate(grids):
                 global spaces_filled
                 spaces_filled = 0
+                #variable checks if a hint has already been outputted
                 global hint_grid_outputted
                 hint_grid_outputted = False
-                #global hint_grids
                 hint_grids = []
-                # print("Solving grid: %d" % (i+1))
                 explanation_points = []
                 original_empty_cells = []
                     
                 SolutionSteps.explain_points = []
                 explanation = SolutionSteps.explain_points
-                # print("Solving grid: %d" % (i+1))
                     
                 EmptyCells.og_empty_cells = []
                     
@@ -745,9 +739,10 @@ def main(argvars):
                 solution = recursive_plus_solve(grid, n_rows, n_cols)
                     
                 elapsed_time = time.time() - start_time
-
+                #section for hint flag
                 if re_dict['generate_hints']:
                     if NUMBER_OF_HINTS < spaces_filled:
+                        #call function dependent on whether full solution or partial solution is required
                         give_solution_hints(NUMBER_OF_HINTS, hint_grids[NUMBER_OF_HINTS - 1])
                     else:
                         give_full_solution(hint_grids[-1:])
@@ -760,12 +755,12 @@ def main(argvars):
                     
                 if re_dict['generate_explanation']\
                     and not re_dict['generate_output_file']:
-                    #Explain with hints
+                    #explain with hints
                     if re_dict['generate_hints']:
                         print('These are the following moves already filled out:')
 
                         print(*reversed(explanation[-NUMBER_OF_HINTS:]))
-                    #Explain without hints
+                    #explain without hints
                     else:
                         for row in solution:
                             print(row)
